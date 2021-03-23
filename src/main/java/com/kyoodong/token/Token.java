@@ -157,4 +157,8 @@ public class Token {
     public TokenType getTokenType() {
         return tokenType;
     }
+
+    public List<byte[]> getExtraList() {
+        return extraList;
+    }
 }

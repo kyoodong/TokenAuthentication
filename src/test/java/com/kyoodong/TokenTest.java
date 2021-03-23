@@ -17,7 +17,12 @@ public class TokenTest {
 
     private CryptoKey cryptoKey = new CryptoKey();
     private TempTokenService tempTokenService = new TempTokenService("appId", cryptoKey);
-    private AnonymousTokenService anonymousService = new AnonymousTokenService("appId", cryptoKey);
+    private AnonymousTokenService anonymousService = new AnonymousTokenService("appId", cryptoKey, tempTokenService, new SignatureValidator() {
+        @Override
+        public boolean validate(String signature) {
+            return true;
+        }
+    });
     private UserTokenService userTokenService = new UserTokenService("appId", cryptoKey, new UserTokenRepository() {
         Map<Integer, UserToken> map = new HashMap<>();
 
@@ -45,6 +50,7 @@ public class TokenTest {
 
         // 복호화된 tempToken = 서버로 이대로 요청을 날리면 됨
         String tempToken = AES256.get().decryptToString(encryptedTempToken, clientKey.getBytes());
+        tempTokenService.validateToken(tempToken);
 
         //
         String signature = "0123456789123456";
@@ -53,7 +59,7 @@ public class TokenTest {
         // 서버로부터 전달 받은 anonymousToken
         String encryptedAnonymousToken = anonymousService.createToken(tempToken, OS.ANDROID, encryptedSignature);
         String anonymousToken = AES256.get().decryptToString(encryptedAnonymousToken, clientKey.getBytes());
-        System.out.println(anonymousToken);
+        anonymousService.validateToken(anonymousToken);
 
         UserToken userToken = userTokenService.createToken(1);
         int userId = userTokenService.validateToken(userToken.getAccessToken());
