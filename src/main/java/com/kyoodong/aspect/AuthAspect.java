@@ -1,5 +1,6 @@
 package com.kyoodong.aspect;
 
+import com.kyoodong.Constant;
 import com.kyoodong.service.AnonymousTokenService;
 import com.kyoodong.service.TempTokenService;
 import com.kyoodong.service.UserTokenService;
@@ -49,18 +50,25 @@ public class AuthAspect {
     public void beforeAnonymousAuth(JoinPoint joinPoint) {
         String token = getToken();
         anonymousTokenService.validateToken(token);
+        setToken(token);
     }
 
     @Before("userAuth()")
     public void beforeUserAuth(JoinPoint joinPoint) {
         String token = getToken();
         int userId = userTokenService.validateToken(token);
+        setToken(token);
         setUserId(userId);
     }
 
     private void setUserId(int userId) {
         HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.getRequestAttributes())).getRequest();
-        request.setAttribute("userId", userId);
+        request.setAttribute(Constant.USER_ID, userId);
+    }
+
+    private void setToken(String token) {
+        HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.getRequestAttributes())).getRequest();
+        request.setAttribute(Constant.TOKEN, token);
     }
 
     private String getToken() {
