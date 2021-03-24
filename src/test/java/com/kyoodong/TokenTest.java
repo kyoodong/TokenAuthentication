@@ -42,17 +42,10 @@ public class TokenTest {
     });
 
     @Test
-    public void test_decryptTempToken() {
-        String clientKey = "1234567890123456";
-        String encryptedTempToken = "vmdzYbqak0/2877qUqBk1pgpL8SYpq5lX/4K311iKkEBMuCSzbiWF/45iiOarLsmMejn62I5qp+GH7oZ/4EuHhAuaNvlYbYzJwSccbYS14+TMENkniWBTjTYLJK0+I2d";
-        System.out.println(AES256.get().decryptToString(encryptedTempToken, clientKey.getBytes()));
-    }
-
-    @Test
     public void test_decryptAnonymousToken() {
         String clientKey = "1234567890123456";
-        String encryptedAnonymousToken = "XcsqgjxWp6j5IDmcCfqU04tUVaeFsOBnnf0UTHTFOvCMi/eOhFvtGwfCD/zgg11lU5GFjS3xPekcBYu0JnFP8m0DnwbtgZTHQBRcFQEXHQhMpEQRgGUeWERnnJn+FEW89FZSj40ivkRMRM2u27ksiVzYLJt+tHXuAiUylRrOs7ytb937WEuW0fFij9mHutuJ";
-        System.out.println(AES256.get().decryptToString(encryptedAnonymousToken, clientKey.getBytes()));
+        String token = "QTJHeF2pfjR4GGXk19Rxw9/IMbMs1I7jBu1M6ZacJaLG6hVXFJ1wvj/qRSzZgupDc4wrpLqsjaNKBLVVP3UBg/DTrsURwwEO7iXH0x7PzmLmys9C2wcI8br4NVOC/akS";
+        System.out.println(AES256.get().decryptToString(token, clientKey.getBytes()));
     }
 
     @Test

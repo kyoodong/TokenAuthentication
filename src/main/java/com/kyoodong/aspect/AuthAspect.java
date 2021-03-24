@@ -15,8 +15,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 
-@Aspect
-@Component
 public class AuthAspect {
 
     private final UserTokenService userTokenService;
@@ -44,6 +42,7 @@ public class AuthAspect {
     public void beforeTempAuth(JoinPoint joinPoint) {
         String token = getToken();
         tempTokenService.validateToken(token);
+        setToken(token);
     }
 
     @Before("anonymousAuth()")
