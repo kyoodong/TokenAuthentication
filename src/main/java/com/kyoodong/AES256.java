@@ -1,5 +1,8 @@
 package com.kyoodong;
 
+import com.kyoodong.exceptions.DecryptException;
+import com.kyoodong.exceptions.EncryptException;
+
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
@@ -34,7 +37,7 @@ public class AES256 implements Crypto {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new RuntimeException();
+        throw new EncryptException();
     }
 
     @Override
@@ -70,7 +73,7 @@ public class AES256 implements Crypto {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        throw new RuntimeException();
+        throw new DecryptException();
     }
 
     @Override

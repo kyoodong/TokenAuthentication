@@ -1,5 +1,8 @@
 package com.kyoodong;
 
+import com.kyoodong.exceptions.DecryptException;
+import com.kyoodong.exceptions.EncryptException;
+
 import javax.crypto.Cipher;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
@@ -34,7 +37,7 @@ public class RSA2048 implements Crypto {
             e.printStackTrace();
         }
 
-        throw new RuntimeException();
+        throw new EncryptException();
     }
 
     @Override
@@ -67,7 +70,7 @@ public class RSA2048 implements Crypto {
             e.printStackTrace();
         }
 
-        throw new RuntimeException();
+        throw new DecryptException();
     }
 
     @Override
