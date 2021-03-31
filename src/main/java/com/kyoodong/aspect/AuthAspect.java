@@ -5,11 +5,9 @@ import com.kyoodong.service.AnonymousTokenService;
 import com.kyoodong.service.TempTokenService;
 import com.kyoodong.service.UserTokenService;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -18,9 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 public class AuthAspect {
 
     private final UserTokenService userTokenService;
-
     private final TempTokenService tempTokenService;
-
     private final AnonymousTokenService anonymousTokenService;
 
     public AuthAspect(UserTokenService userTokenService, TempTokenService tempTokenService, AnonymousTokenService anonymousTokenService) {
@@ -43,6 +39,7 @@ public class AuthAspect {
         String token = getToken();
         tempTokenService.validateToken(token);
         setToken(token);
+        setType(Constant.TOKEN_TEMP);
     }
 
     @Before("anonymousAuth()")
@@ -50,6 +47,7 @@ public class AuthAspect {
         String token = getToken();
         anonymousTokenService.validateToken(token);
         setToken(token);
+        setType(Constant.TOKEN_ANONYMOUS);
     }
 
     @Before("userAuth()")
@@ -58,6 +56,7 @@ public class AuthAspect {
         int userId = userTokenService.validateToken(token);
         setToken(token);
         setUserId(userId);
+        setType(Constant.TOKEN_USER);
     }
 
     private void setUserId(int userId) {
@@ -68,6 +67,11 @@ public class AuthAspect {
     private void setToken(String token) {
         HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.getRequestAttributes())).getRequest();
         request.setAttribute(Constant.TOKEN, token);
+    }
+
+    private void setType(String type) {
+        HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.getRequestAttributes())).getRequest();
+        request.setAttribute(Constant.TOKEN_TYPE, type);
     }
 
     private String getToken() {
