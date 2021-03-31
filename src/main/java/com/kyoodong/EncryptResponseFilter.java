@@ -1,6 +1,7 @@
 package com.kyoodong;
 
 import com.kyoodong.token.Token;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
@@ -10,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 
+@Order(10)
 public class EncryptResponseFilter implements Filter {
 
     private final CryptoKey cryptoKey;
@@ -32,29 +34,20 @@ public class EncryptResponseFilter implements Filter {
         chain.doFilter(httpRequest, contentCachingResponseWrapper);
 
         String body = new String(contentCachingResponseWrapper.getContentAsByteArray());
-        String tokenType = request.getAttribute("TOKEN_TYPE").toString();
-        if (tokenType == null || tokenType.equals("TOKEN_TEMP")) {
+        Object tokenTypeObj = request.getAttribute("TOKEN_TYPE");
+        HttpServletResponseWrapper responseWrapper = new HttpServletResponseWrapper(httpResponse);
+
+        if (tokenTypeObj == null) {
             contentCachingResponseWrapper.copyBodyToResponse();
             return;
         }
 
-        HttpServletResponseWrapper responseWrapper = new HttpServletResponseWrapper(httpResponse);
         String token = getToken(httpRequest);
-        if (tokenType.equals("TOKEN_ANONYMOUS")) {
-            Token anonymousToken = Token.from(token, cryptoKey.getSecretKey());
-            String clientKey = anonymousToken.getString(0);
-            byte[] responseData = AES256.get().encrypt(body, clientKey.getBytes());
-            responseWrapper.getOutputStream().write(responseData);
-            return;
-        }
-
-        if (tokenType.equals("TOKEN_USER")) {
-            Token userToken = Token.from(token, cryptoKey.getSecretKey());
-            byte[] secretKey = userToken.getByteArray(0);
-            byte[] responseData = AES256.get().encrypt(body, secretKey);
-            responseWrapper.getOutputStream().write(responseData);
-            return;
-        }
+        Token userToken = Token.from(token, cryptoKey.getSecretKey());
+        byte[] secretKey = userToken.getByteArray(0);
+        byte[] responseData = AES256.get().encryptToString(body, secretKey).getBytes();
+        responseWrapper.setContentLength(responseData.length);
+        responseWrapper.getOutputStream().write(responseData);
     }
 
     @Override

@@ -42,10 +42,17 @@ public class TokenTest {
     });
 
     @Test
-    public void test_decryptAnonymousToken() {
+    public void test_decryptTempToken() {
         String clientKey = "1234567890123456";
-        String token = "E5pbH/sNZsko/LWzaDma9+BQADWOgasRr6pGejfFWb3MHYJeuJZYo4eu0ktPjWKocsaHmppOf/eCxBsM2fXE4g1dD6HE1ACVaJjC9pbHZOe80aGlnYCErHhok5JdO4bFXeunFNN1V1Vek5PFoMQMrV75Q3MyYfVOD2Kk+WrgvhKndtT9Wh/oUiLaICR8ebly";
-        System.out.println(AES256.get().decryptToString(token, clientKey.getBytes()));
+        String data = "J1zwrJ+H7M5c3KijPqUvt0D6r2G3E1VsRbvwPq7hbVu+jyvnpUtKWOcuwLOXk/zPP1UxvweGW29xFj6jQi5XrZvojjvaJ9zp5Diw43m775V2PuyjOVg7hMhHmK+5KnsXu59ezQFOXan6//0vuFUPcxgb8a/jP4bof8yHWYgzlS7vrWqo/yN3G5Q69TrBGnal9UlTLRguUdsH0Fn/mkkUYsegtxHpTgR6pY/3AGsrHdC+92fD1zoTG/cPbqrlbHm7TdiiVIdZkNonEw5xWmJQL4kQNanI6G0NpDBGJaUqhuwkewbCusA2ytARB6RaXN8N4VQfB4w1JgANUYF1xO2bTOFlqLjJcCC1/gjVkCYu8NXWth0ENrFX4xNSYVpkTNV1wyXjCQUzeCVqvDEkVXXOP8VlCVEnsrmQEp0/yA//cETOP//6XCUXe9uzXvxVkOK7VieyEYR1QJrr4zkf6Sd5Gnz10TIzA9s80kzmaBHZ4VlxlxAmabpZMCenvRiyEYFKlnBdk/0AAZybOrLGzxmmjA0ljEMgxpn3YpPOm8qlsVHq9jLhnxDH0JzGri2q1EwlCqYnfQLmuyXcSccr0eVvQlFE9+T3YN1PGPNT/LgS5EbjuzuWIkTkWbxEJJvx33Yv";
+        System.out.println(AES256.get().decryptToString(data, clientKey.getBytes()));
+    }
+
+    @Test
+    public void test_decryptUserToken() {
+        byte[] secretKey = Base64.decode("XfgQ0S/m5Rh/cX7CEwnQBw==");
+        String data = "XEqByu4VCAw5rTx7THfAvE6/NvfiPDOiZNaFo+/q44dNj1dlLQQ9B55fNOpzt7P4CyU10SM8KH+fd/H2XSVSa/WSou5BtcftRe8MafUDPfrK0JO/5qMnpydO2anrThzW";
+        System.out.println(AES256.get().decryptToString(data, secretKey));
     }
 
     @Test
