@@ -8,6 +8,10 @@ public class Base64 {
         return java.util.Base64.getEncoder().encode(toByteArray(content));
     }
 
+    public static byte[] encode(byte[] content) {
+        return java.util.Base64.getEncoder().encode(content);
+    }
+
     public static String encodeToString(String content) {
         return java.util.Base64.getEncoder().encodeToString(toByteArray(content));
     }

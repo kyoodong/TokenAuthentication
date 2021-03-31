@@ -44,7 +44,7 @@ public class TokenTest {
     @Test
     public void test_decryptAnonymousToken() {
         String clientKey = "1234567890123456";
-        String token = "wZuq6QFbEQ8jFREXZUXEz7sKjzqBauCTJIddP2nzpCvoyx/HJTu7JQjtmCLDP0afH/21VjZjPpolZ1/pGC2RQi49pAw51cfReTaNGUKN8xrLXjP7k6kzsAQbMjKqmNyleUDeBJ0aO0k/nepzH/IRIlVcF+i6wOFmpyTnb+ptlaiJVxJXfKNZAsPaZOJz08UY";
+        String token = "E5pbH/sNZsko/LWzaDma9+BQADWOgasRr6pGejfFWb3MHYJeuJZYo4eu0ktPjWKocsaHmppOf/eCxBsM2fXE4g1dD6HE1ACVaJjC9pbHZOe80aGlnYCErHhok5JdO4bFXeunFNN1V1Vek5PFoMQMrV75Q3MyYfVOD2Kk+WrgvhKndtT9Wh/oUiLaICR8ebly";
         System.out.println(AES256.get().decryptToString(token, clientKey.getBytes()));
     }
 
