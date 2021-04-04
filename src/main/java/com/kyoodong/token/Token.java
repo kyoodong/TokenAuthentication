@@ -150,11 +150,19 @@ public class Token {
         return new String(this.extraList.get(index));
     }
 
+    public byte[] getByteArray(int index) {
+        return this.extraList.get(index);
+    }
+
     public LocalDateTime getExpiredAt() {
         return createdAt.plusSeconds(tokenType.lifeTime.getSeconds());
     }
 
     public TokenType getTokenType() {
         return tokenType;
+    }
+
+    public List<byte[]> getExtraList() {
+        return extraList;
     }
 }
