@@ -2,8 +2,8 @@ package com.kyoodong.service;
 
 import com.kyoodong.AES256;
 import com.kyoodong.CryptoKey;
-import com.kyoodong.Utils;
 import com.kyoodong.TokenType;
+import com.kyoodong.Utils;
 import com.kyoodong.enumeration.OS;
 import com.kyoodong.token.Token;
 
