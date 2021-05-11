@@ -1,18 +1,20 @@
 package com.kyoodong.service;
 
+import com.kyoodong.exceptions.InvalidHashException;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-public class TokenValidateService {
+public class ResponseValidateService {
 
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
     public void validateHash(
         String hash,
-        String secretKey,
+        byte[] secretKey,
         byte[] body,
         String token,
         long timestamp
@@ -26,22 +28,17 @@ public class TokenValidateService {
 
         String generatedHash = hmacSha512(byteBuffer.array(), secretKey);
         if (!hash.equals(generatedHash)) {
-            // TODO: 수정
-            throw new RuntimeException();
+            throw new InvalidHashException();
         }
     }
 
-    private String hmacSha512(
-        byte[] message,
-        String key
-    ) {
+    private String hmacSha512(byte[] message, byte[] key) {
         Mac sha512Hmac;
         final String HMAC_SHA512 = "HmacSHA512";
 
         try {
-            final byte[] byteKey = key.getBytes();
             sha512Hmac = Mac.getInstance(HMAC_SHA512);
-            SecretKeySpec keySpec = new SecretKeySpec(byteKey, HMAC_SHA512);
+            SecretKeySpec keySpec = new SecretKeySpec(key, HMAC_SHA512);
             sha512Hmac.init(keySpec);
             byte[] macData = sha512Hmac.doFinal(message);
 

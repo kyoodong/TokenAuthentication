@@ -7,6 +7,7 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class AES256 implements Crypto {
@@ -52,7 +53,7 @@ public class AES256 implements Crypto {
 
     @Override
     public String encryptToString(String data, byte[] secretKey) {
-        return Base64.encodeToString(encrypt(data.getBytes(), secretKey));
+        return Base64.encodeToString(encrypt(data.getBytes(StandardCharsets.UTF_8), secretKey));
     }
 
     @Override

@@ -7,8 +7,6 @@ import com.kyoodong.exceptions.ExpiredTokenException;
 import com.kyoodong.exceptions.InvalidTokenException;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -117,12 +115,24 @@ public class Token {
         this.refreshKey = refreshKey;
     }
 
-    public boolean isValid() {
-        if (tokenType == TokenType.TEMP_TOKEN || tokenType == TokenType.ANONYMOUS_TOKEN) {
-            return extraList.size() == 1;
+    public void validate() {
+        if (LocalDateTime.now().isAfter(getExpiredAt())) {
+            throw new ExpiredTokenException();
         }
 
-        return false;
+        if (tokenType == TokenType.TEMP_TOKEN) {
+            if (extraList.size() != 1) {
+                throw new InvalidTokenException();
+            }
+        } else if (tokenType == TokenType.ANONYMOUS_TOKEN) {
+            if (extraList.size() != 3) {
+                throw new InvalidTokenException();
+            }
+        } else if (tokenType == TokenType.ACCESS_TOKEN) {
+            if (extraList.size() != 2) {
+                throw new InvalidTokenException();
+            }
+        }
     }
 
     public Token addData(String data) {
@@ -158,7 +168,7 @@ public class Token {
         return createdAt.plusSeconds(tokenType.lifeTime.getSeconds());
     }
 
-    public TokenType getTokenType() {
+    public TokenType getType() {
         return tokenType;
     }
 

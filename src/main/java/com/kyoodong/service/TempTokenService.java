@@ -1,11 +1,9 @@
 package com.kyoodong.service;
 
 import com.kyoodong.*;
-import com.kyoodong.exceptions.ExpiredTokenException;
-import com.kyoodong.exceptions.InvalidTokenException;
 import com.kyoodong.token.Token;
 
-import java.time.LocalDateTime;
+import java.nio.charset.StandardCharsets;
 
 public class TempTokenService {
 
@@ -24,21 +22,6 @@ public class TempTokenService {
         Token token = new Token(appId, refreshKey, TokenType.TEMP_TOKEN);
         token.addData(clientKey);
         String encryptedToken = token.make(cryptoKey.getSecretKey());
-        return AES256.get().encryptToString(encryptedToken, clientKey.getBytes());
-    }
-
-    public void validateToken(String tempToken) {
-        Token token = Token.from(tempToken, cryptoKey.getSecretKey());
-        validateToken(token);
-    }
-
-    public void validateToken(Token tempToken) {
-        if (LocalDateTime.now().isAfter(tempToken.getExpiredAt())) {
-            throw new ExpiredTokenException();
-        }
-
-        if (tempToken.getExtraList().size() != 1) {
-            throw new InvalidTokenException();
-        }
+        return AES256.get().encryptToString(encryptedToken, clientKey.getBytes(StandardCharsets.UTF_8));
     }
 }

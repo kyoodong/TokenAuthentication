@@ -4,20 +4,17 @@ import com.kyoodong.Base64;
 import com.kyoodong.CryptoKey;
 import com.kyoodong.TokenType;
 import com.kyoodong.Utils;
-import com.kyoodong.exceptions.ExpiredTokenException;
 import com.kyoodong.exceptions.InvalidTokenException;
-import com.kyoodong.exceptions.InvalidTokenTypeException;
 import com.kyoodong.repository.UserTokenRepository;
 import com.kyoodong.token.Token;
 import com.kyoodong.token.UserToken;
-
-import java.time.LocalDateTime;
 
 public class UserTokenService {
 
     private String appId;
     private CryptoKey cryptoKey;
     private UserTokenRepository repository;
+
 
     public UserTokenService(String appId, CryptoKey cryptoKey, UserTokenRepository repository) {
         this.appId = appId;
@@ -26,7 +23,7 @@ public class UserTokenService {
     }
 
     public UserToken createToken(int userId) {
-        byte[] secretKey = CryptoKey.generateAesKey();
+        String secretKey = Base64.encodeToString(CryptoKey.generateAesKey());
         Token accessToken = new Token(appId, Utils.getRandomString(), TokenType.ACCESS_TOKEN)
             .addData(secretKey)
             .addData(userId);
@@ -39,31 +36,24 @@ public class UserTokenService {
         UserToken userToken = new UserToken(
             encryptedAccessToken,
             encryptedRefreshToken,
-            Base64.encodeToString(secretKey),
+            secretKey,
             accessToken.getExpiredAt(),
             refreshToken.getExpiredAt()
         );
-        repository.save(userId, userToken);
+        repository.save(userId, encryptedAccessToken);
         return userToken;
     }
 
-    public int validateToken(String accessToken) {
-        Token token = Token.from(accessToken, cryptoKey.getSecretKey());
-        if (token.getTokenType() != TokenType.ACCESS_TOKEN) {
-            throw new InvalidTokenTypeException();
-        }
+    public int validateToken(Token accessToken) {
+        accessToken.validate();
 
-        if (LocalDateTime.now().isAfter(token.getExpiredAt())) {
-            throw new ExpiredTokenException();
-        }
+        int userId = accessToken.getInt(1);
+        String tokenString = accessToken.make(cryptoKey.getSecretKey());
+        String savedAccessToken = repository.get(userId);
 
-        int userId = token.getInt(1);
-        UserToken userToken = repository.get(userId);
-
-        if (userToken == null || !userToken.getAccessToken().equals(accessToken)) {
+        if (!tokenString.equals(savedAccessToken)) {
             throw new InvalidTokenException();
         }
-
         return userId;
     }
 

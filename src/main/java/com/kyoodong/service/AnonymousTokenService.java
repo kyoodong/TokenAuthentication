@@ -2,7 +2,6 @@ package com.kyoodong.service;
 
 import com.kyoodong.*;
 import com.kyoodong.enumeration.OS;
-import com.kyoodong.exceptions.ExpiredTokenException;
 import com.kyoodong.exceptions.InvalidTokenException;
 import com.kyoodong.token.Token;
 
@@ -28,7 +27,7 @@ public class AnonymousTokenService {
         String encryptedSignature
     ) {
         Token token = Token.from(tempToken, cryptoKey.getSecretKey());
-        tempTokenService.validateToken(token);
+        token.validate();
 
         String clientKey = token.getString(0);
         String signature = AES256.get().decryptToString(encryptedSignature, clientKey.getBytes());
@@ -40,19 +39,14 @@ public class AnonymousTokenService {
         return AES256.get().encryptToString(newToken.make(cryptoKey.getSecretKey()), clientKey.getBytes());
     }
 
-    public void validateToken(String anonymousToken) {
-        Token token = Token.from(anonymousToken, cryptoKey.getSecretKey());
-        if (token.getExtraList().size() != 3) {
-            throw new InvalidTokenException();
-        }
-
-        if (LocalDateTime.now().isAfter(token.getExpiredAt())) {
-            throw new ExpiredTokenException();
-        }
+    public Token validateToken(Token token) {
+        token.validate();
 
         String signature = token.getString(2);
         if (!signatureValidator.validate(signature)) {
             throw new InvalidTokenException();
         }
+
+        return token;
     }
 }

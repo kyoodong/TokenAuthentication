@@ -44,7 +44,7 @@ public class TokenTest {
     @Test
     public void test_decryptTempToken() {
         String clientKey = "1234567890123456";
-        String data = "J1zwrJ+H7M5c3KijPqUvt0D6r2G3E1VsRbvwPq7hbVu+jyvnpUtKWOcuwLOXk/zPP1UxvweGW29xFj6jQi5XrZvojjvaJ9zp5Diw43m775V2PuyjOVg7hMhHmK+5KnsXu59ezQFOXan6//0vuFUPcxgb8a/jP4bof8yHWYgzlS7vrWqo/yN3G5Q69TrBGnal9UlTLRguUdsH0Fn/mkkUYsegtxHpTgR6pY/3AGsrHdC+92fD1zoTG/cPbqrlbHm7TdiiVIdZkNonEw5xWmJQL4kQNanI6G0NpDBGJaUqhuwkewbCusA2ytARB6RaXN8N4VQfB4w1JgANUYF1xO2bTOFlqLjJcCC1/gjVkCYu8NXWth0ENrFX4xNSYVpkTNV1wyXjCQUzeCVqvDEkVXXOP8VlCVEnsrmQEp0/yA//cETOP//6XCUXe9uzXvxVkOK7VieyEYR1QJrr4zkf6Sd5Gnz10TIzA9s80kzmaBHZ4VlxlxAmabpZMCenvRiyEYFKlnBdk/0AAZybOrLGzxmmjA0ljEMgxpn3YpPOm8qlsVHq9jLhnxDH0JzGri2q1EwlCqYnfQLmuyXcSccr0eVvQlFE9+T3YN1PGPNT/LgS5EbjuzuWIkTkWbxEJJvx33Yv";
+        String data = "BRKE3I7vhWwaL0GYrNfamr+1wVJWyIrR0FazxDEy9N2nhpwUXS3hi+cT9n79o9LRpjN6zhDoSUuCBag5uPJqEvm+G6Ol5DK11vT0R8+87Jf5Yjc7Gof4Oh6bLXb6wClU";
         System.out.println(AES256.get().decryptToString(data, clientKey.getBytes()));
     }
 
@@ -80,7 +80,7 @@ public class TokenTest {
         anonymousService.validateToken(anonymousToken);
 
         UserToken userToken = userTokenService.createToken(1);
-        int userId = userTokenService.validateToken(userToken.getAccessToken());
-        Assertions.assertEquals(1, userId);
+        UserTokenService.ValidateResult result = userTokenService.validateToken(userToken.getAccessToken());
+        Assertions.assertEquals(1, result.getUserId());
     }
 }

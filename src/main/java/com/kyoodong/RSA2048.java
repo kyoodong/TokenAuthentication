@@ -58,14 +58,13 @@ public class RSA2048 implements Crypto {
     @Override
     public byte[] decrypt(byte[] data, byte[] key) {
         try {
-            byte[] decodedData = Base64.decode(data);
             Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1PADDING", "SunJCE");
             PKCS8EncodedKeySpec rkeySpec = new PKCS8EncodedKeySpec(key);
             KeyFactory rkeyFactory = KeyFactory.getInstance("RSA");
 
             PrivateKey privateKey = rkeyFactory.generatePrivate(rkeySpec);
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
-            return cipher.doFinal(decodedData);
+            return cipher.doFinal(data);
         } catch (Exception e) {
             e.printStackTrace();
         }

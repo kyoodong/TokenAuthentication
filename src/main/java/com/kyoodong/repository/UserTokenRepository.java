@@ -1,10 +1,8 @@
 package com.kyoodong.repository;
 
-import com.kyoodong.token.UserToken;
-
 public interface UserTokenRepository {
 
-    void save(int userId, UserToken token);
+    void save(int userId, String accessToken);
 
-    UserToken get(int userId);
+    String get(int userId);
 }

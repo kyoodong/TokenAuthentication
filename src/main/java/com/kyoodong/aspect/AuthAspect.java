@@ -1,29 +1,18 @@
 package com.kyoodong.aspect;
 
 import com.kyoodong.Constant;
-import com.kyoodong.service.AnonymousTokenService;
-import com.kyoodong.service.TempTokenService;
-import com.kyoodong.service.UserTokenService;
+import com.kyoodong.TokenType;
+import com.kyoodong.exceptions.NotRequiredTokenException;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 public class AuthAspect {
-
-    private final UserTokenService userTokenService;
-    private final TempTokenService tempTokenService;
-    private final AnonymousTokenService anonymousTokenService;
-
-    public AuthAspect(UserTokenService userTokenService, TempTokenService tempTokenService, AnonymousTokenService anonymousTokenService) {
-        this.userTokenService = userTokenService;
-        this.tempTokenService = tempTokenService;
-        this.anonymousTokenService = anonymousTokenService;
-    }
 
     @Pointcut("@annotation(com.kyoodong.annotation.TempAuth)")
     public void tempAuth() { }
@@ -32,54 +21,34 @@ public class AuthAspect {
     public void anonymousAuth() { }
 
     @Pointcut("@annotation(com.kyoodong.annotation.UserAuth)")
-    public void userAuth() { }
+    public void userAuth() {}
 
     @Before("tempAuth()")
     public void beforeTempAuth(JoinPoint joinPoint) {
-        String token = getToken();
-        tempTokenService.validateToken(token);
-        setToken(token);
-        setType(Constant.TOKEN_TEMP);
+        TokenType tokenType = getTokenType();
+        if (tokenType != TokenType.TEMP_TOKEN) {
+            throw new NotRequiredTokenException();
+        }
     }
 
     @Before("anonymousAuth()")
-    public void beforeAnonymousAuth(JoinPoint joinPoint) {
-        String token = getToken();
-        anonymousTokenService.validateToken(token);
-        setToken(token);
-        setType(Constant.TOKEN_ANONYMOUS);
+    public void beforeAnonymousAuth(JoinPoint joinPoint) throws IOException {
+        TokenType tokenType = getTokenType();
+        if (tokenType != TokenType.ANONYMOUS_TOKEN) {
+            throw new NotRequiredTokenException();
+        }
     }
 
     @Before("userAuth()")
-    public void beforeUserAuth(JoinPoint joinPoint) {
-        String token = getToken();
-        int userId = userTokenService.validateToken(token);
-        setToken(token);
-        setUserId(userId);
-        setType(Constant.TOKEN_USER);
+    public void beforeUserAuth(JoinPoint joinPoint) throws IOException {
+        TokenType tokenType = getTokenType();
+        if (tokenType != TokenType.ACCESS_TOKEN) {
+            throw new NotRequiredTokenException();
+        }
     }
 
-    private void setUserId(int userId) {
+    private TokenType getTokenType() {
         HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.getRequestAttributes())).getRequest();
-        request.setAttribute(Constant.USER_ID, userId);
-    }
-
-    private void setToken(String token) {
-        HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.getRequestAttributes())).getRequest();
-        request.setAttribute(Constant.TOKEN, token);
-    }
-
-    private void setType(String type) {
-        HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.getRequestAttributes())).getRequest();
-        request.setAttribute(Constant.TOKEN_TYPE, type);
-    }
-
-    private String getToken() {
-        HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.getRequestAttributes())).getRequest();
-        return getBearerToken(request.getHeader(HttpHeaders.AUTHORIZATION));
-    }
-
-    private String getBearerToken(String bearer) {
-        return bearer.split(" ")[1];
+        return TokenType.valueOf(request.getAttribute(Constant.TOKEN_TYPE).toString());
     }
 }

@@ -34,7 +34,7 @@ public class EncryptResponseFilter implements Filter {
         chain.doFilter(httpRequest, contentCachingResponseWrapper);
 
         String body = new String(contentCachingResponseWrapper.getContentAsByteArray());
-        Object tokenTypeObj = request.getAttribute("TOKEN_TYPE");
+        Object tokenTypeObj = request.getAttribute(Constant.TOKEN_TYPE);
         HttpServletResponseWrapper responseWrapper = new HttpServletResponseWrapper(httpResponse);
 
         if (tokenTypeObj == null) {
@@ -43,11 +43,15 @@ public class EncryptResponseFilter implements Filter {
         }
 
         String token = getToken(httpRequest);
-        Token userToken = Token.from(token, cryptoKey.getSecretKey());
-        byte[] secretKey = userToken.getByteArray(0);
-        byte[] responseData = AES256.get().encryptToString(body, secretKey).getBytes();
-        responseWrapper.setContentLength(responseData.length);
-        responseWrapper.getOutputStream().write(responseData);
+        if (token != null) {
+            Token userToken = Token.from(token, cryptoKey.getSecretKey());
+            byte[] secretKey = userToken.getByteArray(0);
+            byte[] responseData = AES256.get().encryptToString(body, secretKey).getBytes();
+            responseWrapper.setContentLength(responseData.length);
+            responseWrapper.getOutputStream().write(responseData);
+        } else {
+            contentCachingResponseWrapper.copyBodyToResponse();
+        }
     }
 
     @Override
@@ -55,8 +59,13 @@ public class EncryptResponseFilter implements Filter {
 
     }
 
+    // TODO: 하나로 합치기
     private String getToken(HttpServletRequest request) {
-        return getBearerToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+        String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authorization == null) {
+            return authorization;
+        }
+        return getBearerToken(authorization);
     }
 
     private String getBearerToken(String bearer) {
